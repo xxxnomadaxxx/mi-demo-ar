@@ -87,7 +87,7 @@
                    src="assets/TAPA_VIDEO.mp4" webkit-playsinline playsinline></video>
         </a-assets>
 
-        <!-- Marcador Hiro estándar con video -->
+        <!-- Marcador Hiro estándar con video - VERSIÓN CORREGIDA -->
         <a-marker 
             preset="hiro" 
             emiteEvents="true" 
@@ -97,14 +97,15 @@
             smoothTolerance="0.01"
             smoothThreshold="5"
         >
-           <a-video
-        src="#videoTapa"
-        width="1.6"
-        height="0.9"
-        rotation="180 0 0"  <!-- Cambiado de -90 0 0 a 0 0 0 -->
-        position="0 2 0" <!-- Ajustada posición en Y -->
-        scale="2 2 2"      <!-- Añadido scale por si necesitas ajustes -->
-    ></a-video>
+            <a-entity position="0 0.8 0" rotation="0 0 0">
+                <a-video
+                    src="#videoTapa"
+                    width="1.6"
+                    height="0.9"
+                    position="0 0 0"
+                    rotation="-90 0 0"
+                ></a-video>
+            </a-entity>
         </a-marker>
 
         <a-entity camera></a-entity>
