@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AFIRME | Prueba Final AR</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-aframe.prod.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: linear-gradient(135deg, #1a3a6d, #2c5282); color: white; min-height: 100vh; overflow-x: hidden; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; display: flex; flex-direction: column; min-height: 100vh; }
+        header { text-align: center; padding: 15px 0; margin-bottom: 20px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+        .logo { display: flex; align-items: center; justify-content: center; gap: 15px; }
+        .logo h1 { font-weight: 600; font-size: 1.5rem; }
+        .content { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; flex-grow: 1; }
+        .info-panel { background: rgba(255, 255, 255, 0.08); border-radius: 20px; padding: 30px; backdrop-filter: blur(10px); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); max-width: 500px; }
+        .ar-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; display: none; }
+        .loader-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; }
+        .loader { width: 50px; height: 50px; border: 5px solid rgba(255, 255, 255, 0.2); border-top: 5px solid #4f9fff; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .loader-text { font-size: 1.2rem; font-weight: 500; text-align: center; color: #e0f0ff; }
+        .btn { background: linear-gradient(45deg, #2563eb, #3b82f6); color: white; border: none; padding: 15px 30px; font-size: 1.1rem; border-radius: 50px; cursor: pointer; transition: all 0.3s ease; font-weight: 600; display: inline-flex; align-items: center; gap: 10px; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3); }
+        .instructions { margin-top: 20px; text-align: left; }
+        .instructions h3 { margin-bottom: 12px; color: #a0c4ff; }
+        .instructions ol { padding-left: 20px; }
+        .instructions li { margin-bottom: 10px; line-height: 1.5; }
+        .marker-preview img { width: 100%; max-width: 200px; margin-top: 10px; border-radius: 10px; }
+    </style>
+</head>
+<body>
+    <div class="loader-container" id="loader">
+        <div class="loader"></div>
+        <div class="loader-text" id="loader-text">Iniciando Cámara...</div>
+    </div>
+    
+    <div id="ar-container" class="ar-container"></div>
+
+    <div class="container" id="main-ui">
+        <header><div class="logo"><i class="fas fa-vr-cardboard"></i><h1>AFIRME AR (Prueba Final)</h1></div></header>
+        
+        <div class="content">
+            <div class="info-panel">
+                <h2><i class="fas fa-cube"></i> Prueba de Diagnóstico</h2>
+                <div class="instructions">
+                    <h3><i class="fas fa-info-circle"></i> Instrucciones:</h3>
+                    <ol>
+                        <li>Presiona "Iniciar Prueba".</li>
+                        <li>Acepta el permiso para acceder a la cámara.</li>
+                        <li>Enfoca el marcador de prueba "Hiro" (imagen de abajo).</li>
+                    </ol>
+                    <div class="marker-preview">
+                        <p>Apunta a esta imagen:</p>
+                        <img src="https://raw.githubusercontent.com/AR-js-org/AR.js/master/data/images/HIRO.png" alt="Marcador Hiro">
+                    </div>
+                </div>
+                <div class="ar-controls" style="margin-top: 20px;">
+                    <button class="btn" id="start-ar-button"><i class="fas fa-camera"></i> Iniciar Prueba</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const startButton = document.getElementById('start-ar-button');
+            const arContainer = document.getElementById('ar-container');
+            const mainUI = document.getElementById('main-ui');
+            const loader = document.getElementById('loader');
+
+            startButton.addEventListener('click', () => {
+                mainUI.style.display = 'none';
+                loader.style.display = 'flex';
+                
+                const sceneEl = document.createElement('a-scene');
+                
+                // ** CAMBIO CLAVE: Usamos un preset conocido ('hiro') en lugar de un archivo externo. **
+                sceneEl.setAttribute('mindar-image', 'preset: hiro; autoStart: true;');
+                sceneEl.setAttribute('color-space', 'sRGB');
+                sceneEl.setAttribute('vr-mode-ui', 'enabled: false');
+                sceneEl.setAttribute('device-orientation-permission-ui', 'enabled: false');
+
+                const assetsEl = document.createElement('a-assets');
+                const videoEl = document.createElement('video');
+                videoEl.setAttribute('id', 'videoAsset');
+                videoEl.setAttribute('src', './assets/TAPA_VIDEO.mp4'); // Aún usamos tu video
+                videoEl.setAttribute('loop', 'true');
+                videoEl.setAttribute('crossorigin', 'anonymous');
+                videoEl.setAttribute('playsinline', 'true');
+                videoEl.setAttribute('webkit-playsinline', 'true');
+                assetsEl.appendChild(videoEl);
+                sceneEl.appendChild(assetsEl);
+
+                const cameraEl = document.createElement('a-camera');
+                cameraEl.setAttribute('position', '0 0 0');
+                cameraEl.setAttribute('look-controls', 'enabled: false');
+                sceneEl.appendChild(cameraEl);
+
+                const targetEntity = document.createElement('a-entity');
+                targetEntity.setAttribute('mindar-image-target', 'targetIndex: 0');
+                
+                const planeEl = document.createElement('a-plane');
+                planeEl.setAttribute('material', 'shader: flat; src: #videoAsset');
+                planeEl.setAttribute('position', '0 0 0');
+                planeEl.setAttribute('height', '0.55'); // Ajustado para un marcador 1:1
+                planeEl.setAttribute('width', '0.55');  // Ajustado para un marcador 1:1
+                planeEl.setAttribute('rotation', '-90 0 0');
+                targetEntity.appendChild(planeEl);
+                sceneEl.appendChild(targetEntity);
+
+                sceneEl.addEventListener('arReady', () => {
+                    loader.style.display = 'none';
+                    arContainer.style.display = 'block';
+                });
+
+                sceneEl.addEventListener('targetFound', () => { videoEl.play(); });
+                sceneEl.addEventListener('targetLost', () => { videoEl.pause(); });
+
+                arContainer.appendChild(sceneEl);
+            });
+        });
+    </script>
+</body>
+</html>
