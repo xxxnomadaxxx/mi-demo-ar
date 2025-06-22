@@ -1,43 +1,65 @@
 <!DOCTYPE html>
 <html>
-  <head>
+<head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>AFIRME | Prueba de Imagen AR</title>
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
-    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar-nft.js"></script>
     <style>
-      body { margin: 0px; overflow: hidden; }
-      .arjs-loader { height: 100%; width: 100%; position: absolute; top: 0; left: 0; background-color: rgba(0, 0, 0, 0.8); z-index: 9999; display: flex; justify-content: center; align-items: center; }
-      .arjs-loader-spinner { width: 50px; height: 50px; border: 5px solid #fff; border-top-color: #888; border-radius: 50%; animation: spin 1s linear infinite; }
-      @keyframes spin { to { transform: rotate(360deg); } }
+        body { margin: 0px; overflow: hidden; }
+        .arjs-loader { height: 100%; width: 100%; position: absolute; top: 0; left: 0; background-color: rgba(0, 0, 0, 0.8); z-index: 9999; display: flex; justify-content: center; align-items: center; }
+        .arjs-loader div { color: white; font-family: Arial; text-align: center; }
+        .arjs-loader-spinner { width: 50px; height: 50px; border: 5px solid #fff; border-top-color: #888; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 15px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
-  </head>
-  <body style="margin: 0px; overflow: hidden;">
+</head>
+<body style="margin: 0px; overflow: hidden;">
     <div class="arjs-loader">
-      <div class="arjs-loader-spinner"></div>
+        <div>
+            <div class="arjs-loader-spinner"></div>
+            <p>Cargando realidad aumentada...</p>
+            <p>Por favor, permite el acceso a la cámara</p>
+        </div>
     </div>
 
     <a-scene
-      vr-mode-ui="enabled: false;"
-      renderer="logarithmicDepthBuffer: true;"
-      embedded
-      arjs="sourceType: webcam; debugUIEnabled: false;"
+        vr-mode-ui="enabled: false;"
+        renderer="logarithmicDepthBuffer: true;"
+        embedded
+        arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3;"
     >
-      <a-assets>
-        <img id="ar-image" src="./assets/TAPA_FOTO.png" crossorigin="anonymous">
-      </a-assets>
+        <a-assets>
+            <img id="ar-image" src="assets/TAPA_FOTO.png" crossorigin="anonymous">
+        </a-assets>
 
-      <a-marker preset="hiro">
-        <a-image
-          src="#ar-image"
-          width="1.6"
-          height="1.6"
-          rotation="-90 0 0"
-          position="0 0.05 0"
-        ></a-image>
-      </a-marker>
+        <!-- NFT Marker para imagen personalizada -->
+        <a-nft
+            type="nft"
+            url="assets/TAPA_FOTO"
+            smooth="true"
+            smoothCount="10"
+            smoothTolerance="0.01"
+            smoothThreshold="5"
+        >
+            <a-image
+                src="#ar-image"
+                width="1.6"
+                height="1.6"
+                rotation="-90 0 0"
+                position="0 0.05 0"
+            ></a-image>
+        </a-nft>
 
-      <a-entity camera></a-entity>
+        <a-entity camera></a-entity>
     </a-scene>
-  </body>
+
+    <script>
+        // Oculta el loader cuando la escena está cargada
+        document.querySelector('a-scene').addEventListener('loaded', function() {
+            setTimeout(function() {
+                document.querySelector('.arjs-loader').style.display = 'none';
+            }, 1500);
+        });
+    </script>
+</body>
 </html>
