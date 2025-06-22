@@ -2,13 +2,15 @@
 <html>
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>AFIRME | Prueba Final AR</title>
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
     <style>
-      body { margin: 0; overflow: hidden; }
+      body { margin: 0px; overflow: hidden; }
+      /* Pantalla de carga simple */
       .arjs-loader { height: 100%; width: 100%; position: absolute; top: 0; left: 0; background-color: rgba(0, 0, 0, 0.8); z-index: 9999; display: flex; justify-content: center; align-items: center; }
-      .arjs-loader-spinner { width: 50px; height: 50px; border: 5px solid rgba(255, 255, 255, 0.2); border-top: 5px solid #fff; border-radius: 50%; animation: spin 1s linear infinite; }
-      @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+      .arjs-loader-spinner { width: 50px; height: 50px; border: 5px solid #fff; border-top-color: #888; border-radius: 50%; animation: spin 1s linear infinite; }
+      @keyframes spin { to { transform: rotate(360deg); } }
     </style>
   </head>
   <body style="margin: 0px; overflow: hidden;">
@@ -37,7 +39,7 @@
       <a-marker preset="hiro" id="marker">
         <a-plane
           id="video-plane"
-          color="#FFF"
+          color="#CCC"
           width="1.6"
           height="0.9"
           rotation="-90 0 0"
@@ -50,18 +52,21 @@
 
     <script>
       window.addEventListener('load', () => {
-        const marker = document.getElementById('marker');
-        const video = document.getElementById('video');
-        const videoPlane = document.getElementById('video-plane');
+        const marker = document.querySelector('#marker');
+        const video = document.querySelector('#video');
+        const videoPlane = document.querySelector('#video-plane');
 
-        // Cuando el marcador se encuentra por primera vez
+        let firstFound = false;
+
         marker.addEventListener("markerFound", () => {
-          // CAMBIO CLAVE: Asignamos el video al material del plano y lo reproducimos.
-          videoPlane.setAttribute('material', 'src', '#video');
+          if (!firstFound) {
+            firstFound = true;
+            // Solo en la primera detección, asignamos el video como material del plano.
+            videoPlane.setAttribute('material', 'src', '#video');
+          }
           video.play();
         });
 
-        // Cuando se pierde el marcador
         marker.addEventListener("markerLost", () => {
           video.pause();
         });
