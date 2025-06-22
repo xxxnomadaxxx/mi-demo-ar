@@ -2,12 +2,11 @@
 <html>
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>AFIRME | Prueba Final AR</title>
+    <title>AFIRME | Prueba de Imagen AR</title>
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
     <style>
       body { margin: 0px; overflow: hidden; }
-      /* Pantalla de carga simple */
       .arjs-loader { height: 100%; width: 100%; position: absolute; top: 0; left: 0; background-color: rgba(0, 0, 0, 0.8); z-index: 9999; display: flex; justify-content: center; align-items: center; }
       .arjs-loader-spinner { width: 50px; height: 50px; border: 5px solid #fff; border-top-color: #888; border-radius: 50%; animation: spin 1s linear infinite; }
       @keyframes spin { to { transform: rotate(360deg); } }
@@ -25,52 +24,20 @@
       arjs="sourceType: webcam; debugUIEnabled: false;"
     >
       <a-assets>
-        <video
-          id="video"
-          src="./assets/TAPA_VIDEO.mp4"
-          loop
-          crossorigin="anonymous"
-          playsinline
-          webkit-playsinline
-          preload="auto"
-        ></video>
+        <img id="ar-image" src="./assets/TAPA_FOTO.png" crossorigin="anonymous">
       </a-assets>
 
-      <a-marker preset="hiro" id="marker">
-        <a-plane
-          id="video-plane"
-          color="#CCC"
+      <a-marker preset="hiro">
+        <a-image
+          src="#ar-image"
           width="1.6"
-          height="0.9"
+          height="1.6"
           rotation="-90 0 0"
           position="0 0.05 0"
-        ></a-plane>
+        ></a-image>
       </a-marker>
 
       <a-entity camera></a-entity>
     </a-scene>
-
-    <script>
-      window.addEventListener('load', () => {
-        const marker = document.querySelector('#marker');
-        const video = document.querySelector('#video');
-        const videoPlane = document.querySelector('#video-plane');
-
-        let firstFound = false;
-
-        marker.addEventListener("markerFound", () => {
-          if (!firstFound) {
-            firstFound = true;
-            // Solo en la primera detección, asignamos el video como material del plano.
-            videoPlane.setAttribute('material', 'src', '#video');
-          }
-          video.play();
-        });
-
-        marker.addEventListener("markerLost", () => {
-          video.pause();
-        });
-      });
-    </script>
   </body>
 </html>
