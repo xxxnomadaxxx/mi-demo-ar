@@ -3,74 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AR Video Mejorado</title>
+    <title>AR Video Continuo</title>
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
     <style>
-        body { 
-            margin: 0; 
-            overflow: hidden; 
-            font-family: Arial, sans-serif;
-        }
-        .arjs-loader {
-            height: 100%;
-            width: 100%;
-            position: absolute;
-            top: 0;
-            left: 0;
-            background-color: rgba(0, 0, 0, 0.8);
-            z-index: 9999;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            color: white;
-        }
-        .arjs-loader-spinner {
-            width: 50px;
-            height: 50px;
-            border: 5px solid #fff;
-            border-top-color: #009688;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-bottom: 20px;
-        }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        .instructions {
-            background: rgba(0, 0, 0, 0.7);
-            color: white;
-            padding: 15px;
-            border-radius: 5px;
-            position: absolute;
-            bottom: 20px;
-            left: 20px;
-            right: 20px;
-            z-index: 100;
-            font-size: 14px;
-            text-align: center;
-        }
-        .marker-status {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            background: rgba(0, 0, 0, 0.7);
-            color: white;
-            padding: 10px;
-            border-radius: 5px;
-            z-index: 100;
-            font-size: 14px;
-        }
+        /* [Tus estilos CSS existentes] */
     </style>
 </head>
 <body>
-    <div class="arjs-loader">
-        <div class="arjs-loader-spinner"></div>
-        <div>Inicializando realidad aumentada...</div>
-    </div>
-
-    <div class="marker-status" id="marker-status">Marcador no detectado</div>
+    <!-- [Tus elementos HTML existentes] -->
 
     <a-scene
         vr-mode-ui="enabled: false;"
@@ -86,7 +27,6 @@
                    src="assets/TAPA_VIDEO.mp4" webkit-playsinline playsinline></video>
         </a-assets>
 
-        <!-- Marcador con todas las mejoras -->
         <a-marker 
             preset="hiro" 
             emiteEvents="true" 
@@ -98,7 +38,7 @@
         >
             <a-entity 
                 id="video-container"
-                position="0 10 0" <!-- Más arriba del marcador -->
+                position="0 1.5 0"
                 rotation="0 0 0"
                 scale="1 1 1"
             >
@@ -116,13 +56,6 @@
         <a-entity camera></a-entity>
     </a-scene>
 
-    <div class="instructions">
-        <strong>Instrucciones:</strong><br>
-        1. Abre el <a href="https://raw.githubusercontent.com/AR-js-org/AR.js/master/data/images/hiro.png" target="_blank">marcador Hiro</a> en otra pantalla<br>
-        2. Apunta tu cámara al marcador<br>
-        3. El video continuará reproduciéndose hasta finalizar
-    </div>
-
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const scene = document.querySelector('a-scene');
@@ -131,14 +64,13 @@
             const video = document.querySelector('#videoTapa');
             const videoContainer = document.querySelector('#video-container');
             let videoStarted = false;
-            let baseScale = 1;
+            let keepPlaying = false; // Bandera para continuar reproducción
 
             // Ocultar loader
             scene.addEventListener('loaded', () => {
                 setTimeout(() => {
                     loader.style.display = 'none';
-                    // Configura el video para que no haga loop
-                    video.loop = false;
+                    video.loop = false; // Desactivamos el loop
                 }, 2000);
             });
             
@@ -152,6 +84,7 @@
                 if(!videoStarted) {
                     video.play().then(() => {
                         videoStarted = true;
+                        keepPlaying = true; // Activamos la bandera
                     }).catch(e => {
                         console.log("Error al reproducir:", e);
                         markerStatus.textContent += " (Error con video)";
@@ -163,7 +96,6 @@
                 const cameraPosition = document.querySelector('[camera]').object3D.position;
                 const distance = markerPosition.distanceTo(cameraPosition);
                 
-                // Ajuste de escala (crece al alejarse)
                 const newScale = Math.min(Math.max(distance * 0.5, 0.8), 2.5);
                 videoContainer.setAttribute('scale', {
                     x: newScale,
@@ -175,7 +107,13 @@
             hiroMarker.addEventListener('markerLost', () => {
                 markerStatus.textContent = "Marcador perdido (video continúa)";
                 markerStatus.style.color = "#FF9800";
-                // NO pausamos el video intencionalmente
+                
+                // Forzar continuación de reproducción
+                if(videoStarted && keepPlaying) {
+                    setTimeout(() => {
+                        video.play().catch(e => console.log("Error al reanudar:", e));
+                    }, 100);
+                }
             });
             
             // Verificar assets
@@ -184,12 +122,20 @@
                 markerStatus.style.color = "#FF5252";
             };
 
-            // Reproducir hasta el final aunque pierda marcador
+            // Reiniciar estado cuando termina el video
             video.onended = () => {
                 markerStatus.textContent = "Video finalizado";
                 markerStatus.style.color = "#4CAF50";
                 videoStarted = false;
+                keepPlaying = false;
             };
+            
+            // Solución definitiva: Intervalo que verifica el estado del video
+            setInterval(() => {
+                if(keepPlaying && video.paused) {
+                    video.play().catch(e => console.log("Auto-reproducción:", e));
+                }
+            }, 500); // Verifica cada 500ms
         });
     </script>
 </body>
