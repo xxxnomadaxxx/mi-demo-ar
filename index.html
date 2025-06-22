@@ -6,30 +6,9 @@
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
     <style>
       body { margin: 0; overflow: hidden; }
-      .arjs-loader {
-        height: 100%;
-        width: 100%;
-        position: absolute;
-        top: 0;
-        left: 0;
-        background-color: rgba(0, 0, 0, 0.8);
-        z-index: 9999;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-      }
-      .arjs-loader-spinner {
-        width: 50px;
-        height: 50px;
-        border: 5px solid rgba(255, 255, 255, 0.2);
-        border-top: 5px solid #fff;
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-      }
-      @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-      }
+      .arjs-loader { height: 100%; width: 100%; position: absolute; top: 0; left: 0; background-color: rgba(0, 0, 0, 0.8); z-index: 9999; display: flex; justify-content: center; align-items: center; }
+      .arjs-loader-spinner { width: 50px; height: 50px; border: 5px solid rgba(255, 255, 255, 0.2); border-top: 5px solid #fff; border-radius: 50%; animation: spin 1s linear infinite; }
+      @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
   </head>
   <body style="margin: 0px; overflow: hidden;">
@@ -47,36 +26,43 @@
         <video
           id="video"
           src="./assets/TAPA_VIDEO.mp4"
-          loop="true"
+          loop
           crossorigin="anonymous"
-          playsinline="true"
-          webkit-playsinline="true"
+          playsinline
+          webkit-playsinline
+          preload="auto"
         ></video>
       </a-assets>
 
-      <a-marker preset="hiro">
-        <a-video
-          src="#video"
+      <a-marker preset="hiro" id="marker">
+        <a-plane
+          id="video-plane"
+          color="#FFF"
           width="1.6"
           height="0.9"
           rotation="-90 0 0"
           position="0 0.05 0"
-          gesture-handler
-        ></a-video>
+        ></a-plane>
       </a-marker>
 
       <a-entity camera></a-entity>
     </a-scene>
 
     <script>
-      // Este script ayuda a que el video se inicie al ser visible en iOS
       window.addEventListener('load', () => {
-        const scene = document.querySelector('a-scene');
+        const marker = document.getElementById('marker');
         const video = document.getElementById('video');
-        scene.addEventListener("markerFound", () => {
+        const videoPlane = document.getElementById('video-plane');
+
+        // Cuando el marcador se encuentra por primera vez
+        marker.addEventListener("markerFound", () => {
+          // CAMBIO CLAVE: Asignamos el video al material del plano y lo reproducimos.
+          videoPlane.setAttribute('material', 'src', '#video');
           video.play();
         });
-        scene.addEventListener("markerLost", () => {
+
+        // Cuando se pierde el marcador
+        marker.addEventListener("markerLost", () => {
           video.pause();
         });
       });
